@@ -9,8 +9,9 @@ def get_info(clses, profs=None):
     driver = webdriver.PhantomJS()
     driver.get("https://pass.calpoly.edu")
 
+    found_classes = []
+
     depts = [x.split()[0] for x in clses]
-    print(depts)
 
     dept_selector = driver.find_element_by_xpath("//select[@data-filter='dept']") 
 
@@ -19,11 +20,15 @@ def get_info(clses, profs=None):
         dept, ln = option.text.split("-")[:2]
 
         if dept in depts:
-            print(option.text)
             option.click()
             course_list = driver.find_element_by_class_name("course-list")
             
-            num_courses += click_courses(driver, [x.split()[1] for x in clses if dept in x], dept) 
+            result = click_courses(driver, [x.split()[1] for x in clses if dept in x], dept) 
+
+            # Remove non-existent courses
+            if result:
+                found_classes.append(clses[depts.index(dept)])
+                num_courses += 1 
 
     cart = driver.find_element_by_id("cart-list-view")
     assert num_courses == len(list(cart.find_elements_by_class_name("clearfix")))
@@ -31,9 +36,19 @@ def get_info(clses, profs=None):
     for cls in cart.find_elements_by_class_name("clearfix"):
         print(cls.find_element_by_class_name("left").text)
 
-def click_courses(driver, courses, d):
-    print(courses)
+    print(found_classes)
+    
+    # Go to next page
+    driver.find_element_by_id("nextBtn").click()
 
+    element = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "select-course"))
+    )
+    
+    driver.save_screenshot("class_grid.png")
+    # classes = driver.find_elements_by_class_name("select-courses")
+
+def click_courses(driver, courses, d):
     element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "selectCol"))
     )
@@ -57,3 +72,13 @@ def click_courses(driver, courses, d):
     
     return 0
 
+def parse_row(clsname, table):
+    for row in table.find_elements_by_tag_name("tr"):
+        # First need to see if this is a notes row or a data row
+        test_elem = row.find_element_by_class_name("sectionNumber")
+        if not test_elem:
+            continue
+
+        cols = list(row.find_elements_by_tag_name("td"))
+
+    
