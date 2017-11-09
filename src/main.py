@@ -3,9 +3,13 @@ import settings
 from get_info import get_info 
 
 def main():
+    full_outp = ""
+
     classes = get_info(settings.classes)
     for cls in classes:
-        print_class(cls)
+        full_outp += print_class(cls)
+
+    return full_outp
 
 def print_class(cls):
     found_professor = False
@@ -45,8 +49,10 @@ def print_class(cls):
                 section['status'], section['days'], section['timespan'])
 
     if found_professor:
-        print(f"{outp}\n")
+        return outp + "\n"
+    else:
+        return ""
 
 if __name__ == "__main__":
-    main()
+    print(main())
 
