@@ -61,7 +61,6 @@ def get_info(clses):
     
     driver.save_screenshot("class_grid.png")
 
-    print(found_classes)
     classes = driver.find_elements_by_class_name("select-course")
 
     for i, table in enumerate(classes):
