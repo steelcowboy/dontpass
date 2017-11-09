@@ -1,6 +1,5 @@
 import sys
 import time
-import pprint
 from enum import IntEnum
 
 from selenium import webdriver
@@ -24,11 +23,12 @@ class gridCols(IntEnum):
     BUILDING = 12
     ROOM = 13
 
-def get_info(clses, profs=None):
+def get_info(clses):
     driver = webdriver.PhantomJS()
     driver.get("https://pass.calpoly.edu")
 
     found_classes = []
+    class_blocks = [] 
 
     depts = [x.split()[0] for x in clses]
 
@@ -45,18 +45,13 @@ def get_info(clses, profs=None):
             result = click_courses(driver, [x.split()[1] for x in clses if dept in x], dept) 
 
             # Remove non-existent courses
-            if result:
-                found_classes.append(clses[depts.index(dept)])
+            if len(result):
+                found_classes += result
                 num_courses += 1 
 
-    cart = driver.find_element_by_id("cart-list-view")
-    assert num_courses == len(list(cart.find_elements_by_class_name("clearfix")))
+    # cart = driver.find_element_by_id("cart-list-view")
+    # assert num_courses == len(list(cart.find_elements_by_class_name("clearfix")))
 
-    for cls in cart.find_elements_by_class_name("clearfix"):
-        print(cls.find_element_by_class_name("left").text)
-
-    print(found_classes)
-    
     # Go to next page
     driver.find_element_by_id("nextBtn").click()
 
@@ -66,12 +61,13 @@ def get_info(clses, profs=None):
     
     driver.save_screenshot("class_grid.png")
 
+    print(found_classes)
     classes = driver.find_elements_by_class_name("select-course")
-    print(classes)
-    pp = pprint.PrettyPrinter(indent=4)
 
     for i, table in enumerate(classes):
-        pp.pprint(parse_row(found_classes[i], table))
+        class_blocks.append(parse_table(found_classes[i], table))
+    
+    return class_blocks
 
 def click_courses(driver, courses, d):
     element = WebDriverWait(driver, 10).until(
@@ -80,8 +76,9 @@ def click_courses(driver, courses, d):
     # This is to wait for the table to fully load (the wait driver doesn't
     # always work if it was clicked before
     time.sleep(1)
-    driver.save_screenshot(f"{d}-buttons.png")
+    # driver.save_screenshot(f"{d}-buttons.png")
 
+    found_courses = [] 
     course_list = driver.find_element_by_class_name("course-list")
     
     for row in course_list.find_elements_by_tag_name("tr"):
@@ -89,17 +86,16 @@ def click_courses(driver, courses, d):
             cols = list(row.find_elements_by_tag_name("td"))
             if len(cols) > 5 and cols[2].text in courses:
                 cols[0].find_element_by_class_name("btn").click()
-                return 1 
+                found_courses.append(f"{d} {cols[2].text}")
         except:
             driver.save_screenshot("screenshot.png")
             driver.close()
             sys.exit(1)
     
-    return 0
+    return found_courses 
 
-def parse_row(clsname, table):
+def parse_table(clsname, table):
     sections = []
-    result = {clsname: sections}
 
     for row in table.find_elements_by_tag_name("tr"):
         # First need to see if this is a notes row or a data row
@@ -113,15 +109,17 @@ def parse_row(clsname, table):
 
         sections.append({
             "section": cols[i].text,
-            "class_number": cols[i+gridCols.CLSNUM].text,
+            "class_number": int(cols[i+gridCols.CLSNUM].text),
             "instructor": cols[i+gridCols.INST].text,
-            "open_seats": cols[i+gridCols.OPEN_S].text,
-            "reserved_seats": cols[i+gridCols.RES_S].text,
-            "waiting": cols[i+gridCols.WAITING].text,
+            "open_seats": int(cols[i+gridCols.OPEN_S].text),
+            "reserved_seats": int(cols[i+gridCols.RES_S].text),
+            "waiting": int(cols[i+gridCols.WAITING].text),
             "status": cols[i+gridCols.STATUS].text,
             "days": cols[i+gridCols.DAYS].text,
             "timespan": cols[i+gridCols.START].text + " - " + cols[i+gridCols.END].text
             })
 
+    # sections = sorted(sections, key=lambda k: k["waiting"]/(k["open_seats"]+k["reserved_seats"]+k["waiting"]))
+    result = {"title": clsname, "sections": sections}
     return result
 
