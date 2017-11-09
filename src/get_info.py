@@ -1,9 +1,28 @@
 import sys
 import time
+import pprint
+from enum import IntEnum
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+class gridCols(IntEnum):
+    SECTION = 0
+    TYPE = 1
+    CLSNUM = 2
+    INST = 3
+    OPEN_S = 4
+    RES_S = 5
+    SEAT_T = 6
+    WAITING = 7
+    STATUS = 8
+    DAYS = 9
+    START = 10
+    END = 11
+    BUILDING = 12
+    ROOM = 13
 
 def get_info(clses, profs=None):
     driver = webdriver.PhantomJS()
@@ -46,7 +65,13 @@ def get_info(clses, profs=None):
     )
     
     driver.save_screenshot("class_grid.png")
-    # classes = driver.find_elements_by_class_name("select-courses")
+
+    classes = driver.find_elements_by_class_name("select-course")
+    print(classes)
+    pp = pprint.PrettyPrinter(indent=4)
+
+    for i, table in enumerate(classes):
+        pp.pprint(parse_row(found_classes[i], table))
 
 def click_courses(driver, courses, d):
     element = WebDriverWait(driver, 10).until(
@@ -73,12 +98,30 @@ def click_courses(driver, courses, d):
     return 0
 
 def parse_row(clsname, table):
+    sections = []
+    result = {clsname: sections}
+
     for row in table.find_elements_by_tag_name("tr"):
         # First need to see if this is a notes row or a data row
-        test_elem = row.find_element_by_class_name("sectionNumber")
-        if not test_elem:
+        try:
+            start_elem = row.find_element_by_class_name("sectionNumber")
+        except:
             continue
 
         cols = list(row.find_elements_by_tag_name("td"))
+        i = cols.index(start_elem)
 
-    
+        sections.append({
+            "section": cols[i].text,
+            "class_number": cols[i+gridCols.CLSNUM].text,
+            "instructor": cols[i+gridCols.INST].text,
+            "open_seats": cols[i+gridCols.OPEN_S].text,
+            "reserved_seats": cols[i+gridCols.RES_S].text,
+            "waiting": cols[i+gridCols.WAITING].text,
+            "status": cols[i+gridCols.STATUS].text,
+            "days": cols[i+gridCols.DAYS].text,
+            "timespan": cols[i+gridCols.START].text + " - " + cols[i+gridCols.END].text
+            })
+
+    return result
+
