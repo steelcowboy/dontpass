@@ -9,6 +9,8 @@ def main():
 
 def print_class(cls):
     found_professor = False
+    show_inst = settings.show_all_inst
+    show_clos = settings.show_closed
 
     outp = ""
 
@@ -25,8 +27,11 @@ def print_class(cls):
         # Handle compound last names 
         inst_last = inst_last.split()
         inst_last = inst_last[0]
+        
+        inst_cond = show_inst or inst_last in settings.instructors
+        clos_cond = show_clos or section["status"] == "Open"
 
-        if inst_last in settings.instructors:
+        if inst_cond and clos_cond:
             found_professor = True
             outp += format_str.format(section['section'],
                 section['class_number'], section['instructor'], 
