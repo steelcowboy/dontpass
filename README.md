@@ -18,3 +18,5 @@ variables declared:
 `show_all_inst`: If this is not false, all instructors will be shown for all
 classes
 `show_closed`: Whether or not you wish to see closed classes
+`color`: If this is not false, ANSI escape sequences will be used to colorize
+classs headers

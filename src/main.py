@@ -12,9 +12,15 @@ def print_class(cls):
     show_inst = settings.show_all_inst
     show_clos = settings.show_closed
 
+    START = ""
+    END = ""
+    if settings.color:
+        START = "\33[1;32m]"
+        END = "\33[0m"
+
     outp = ""
 
-    outp += "\33[32m" + ("=" * 20) + "  " + cls["title"] + "  " + ("=" * 20) + "\33[0m\n"
+    outp += START + ("=" * 20) + "  " + cls["title"] + "  " + ("=" * 20) + END + "\n"
 
     format_str = "{:^8} | {:^14} | {:^30} | {:^10} | {:^16} | {:^8} | {:^12} | {:^6} | {:^8}\n"
     outp += format_str.format("Section", "Class Number", "Instructor", "Open Seats", "Reserved Seats", "Waiting", "Status", "Days", "Timespan")
