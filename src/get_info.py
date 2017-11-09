@@ -108,17 +108,20 @@ def parse_table(clsname, table):
 
         sections.append({
             "section": cols[i].text,
+            "type": cols[i+gridCols.TYPE].text,
             "class_number": int(cols[i+gridCols.CLSNUM].text),
             "instructor": cols[i+gridCols.INST].text,
             "open_seats": int(cols[i+gridCols.OPEN_S].text),
             "reserved_seats": int(cols[i+gridCols.RES_S].text),
+            "taken": int(cols[i+gridCols.SEAT_T].text),
             "waiting": int(cols[i+gridCols.WAITING].text),
             "status": cols[i+gridCols.STATUS].text,
             "days": cols[i+gridCols.DAYS].text,
             "timespan": cols[i+gridCols.START].text + " - " + cols[i+gridCols.END].text
             })
 
-    # sections = sorted(sections, key=lambda k: k["waiting"]/(k["open_seats"]+k["reserved_seats"]+k["waiting"]))
+    # Add a 0.01 to fix division by 0 error, if the denominator is 0 the numerator is certainly 0 as well
+    sections = sorted(sections, key=lambda k: (k["taken"]+k["waiting"])/(k["open_seats"]+k["reserved_seats"]+k["waiting"]+k["taken"]+0.01))
     result = {"title": clsname, "sections": sections}
     return result
 
