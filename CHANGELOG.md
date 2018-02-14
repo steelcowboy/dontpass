@@ -1,3 +1,6 @@
+# 02-13-2018
+- Thinking about making this a Django app, and it's the thought that counts
+
 # 11-09-2017
 - Added type and taken to the collected data
 - Made sorting sections work
