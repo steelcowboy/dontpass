@@ -1,3 +1,7 @@
+# 02-19-2018
+- Integrated the original content into the "pass_app" Django app
+- Ability to update database with one simple command
+
 # 02-13-2018
 - Thinking about making this a Django app, and it's the thought that counts
 
