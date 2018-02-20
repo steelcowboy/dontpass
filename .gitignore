@@ -6,3 +6,4 @@ ghostdriver.log
 settings.py
 venv
 dontpass/dontpass/secret.py
+!dontpass/dontpass/settings.py
