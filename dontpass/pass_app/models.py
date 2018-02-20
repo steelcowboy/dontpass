@@ -1,10 +1,16 @@
 from django.db import models
 
+class Class(models.Model):
+    name = models.CharField('Class Name', max_length=10)
+
 class Section(models.Model):
+    class_name = models.ForeignKey(Class, on_delete=models.CASCADE)
+
     class_number = models.IntegerField('Class Number', primary_key=True, editable=False)
     section_num = models.IntegerField('Section Number')
     class_type = models.CharField('Type', max_length=4)
     instructor = models.CharField('Instructor', max_length=40)
+    days = models.CharField('Days', max_length=5)
     start_time = models.TimeField('Start Time')
     end_time = models.TimeField('End Time')
     building = models.CharField('Building', max_length=40)

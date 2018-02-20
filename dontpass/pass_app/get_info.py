@@ -107,7 +107,7 @@ def parse_table(clsname, table):
         i = cols.index(start_elem)
 
         sections.append({
-            "section": cols[i].text,
+            "section": int(cols[i].text),
             "type": cols[i+gridCols.TYPE].text,
             "class_number": int(cols[i+gridCols.CLSNUM].text),
             "instructor": cols[i+gridCols.INST].text,
@@ -120,7 +120,7 @@ def parse_table(clsname, table):
             "start_time": cols[i+gridCols.START].text,
             "end_time": cols[i+gridCols.END].text,
             "building": cols[i+gridCols.BUILDING].text,
-            "room": cols[i+gridCols.ROOM].find_elements_by_tag_name("span").text,
+            "room": cols[i+gridCols.ROOM].find_elements_by_tag_name("span")[0].text,
             })
 
     # Add a 0.01 to fix division by 0 error, if the denominator is 0 the numerator is certainly 0 as well

@@ -1,4 +1,5 @@
-from . import settings
+# from settings import *
+import settings
 
 from get_info import get_info 
 
@@ -13,6 +14,7 @@ def main():
 
 def print_class(cls):
     found_professor = False
+    
     show_inst = settings.show_all_inst
     show_clos = settings.show_closed
 
@@ -26,8 +28,8 @@ def print_class(cls):
 
     outp += START + ("=" * 20) + "  " + cls["title"] + "  " + ("=" * 20) + END + "\n"
 
-    format_str = "{:^8} | {:^4} | {:^14} | {:^30} | {:^10} | {:^16} | {:^10} | {:^8} | {:^12} | {:^6} | {:^8}\n"
-    outp += format_str.format("Section", "Type", "Class Number", "Instructor", "Open Seats", "Reserved Seats", "Taken", "Waiting", "Status", "Days", "Timespan")
+    format_str = "{:^8} | {:^4} | {:^14} | {:^30} | {:^10} | {:^16} | {:^10} | {:^8} | {:^12} | {:^6} | {:^8} | {:^12} | {:^4}\n"
+    outp += format_str.format("Section", "Type", "Class Number", "Instructor", "Open Seats", "Reserved Seats", "Taken", "Waiting", "Status", "Days", "Timespan", "Building", "Room")
     outp += "-"*144 + "\n"
 
     sections = cls["sections"]
@@ -38,6 +40,7 @@ def print_class(cls):
         inst_last = inst_last.split()
         inst_last = inst_last[0]
         
+        # Also from settings  
         inst_cond = show_inst or inst_last in settings.instructors
         clos_cond = show_clos or section["status"] == "Open"
 
@@ -47,7 +50,8 @@ def print_class(cls):
                 section['class_number'], section['instructor'], 
                 section['open_seats'], section['reserved_seats'], 
                 section['taken'], section['waiting'], 
-                section['status'], section['days'], section['timespan'])
+                section['status'], section['days'], f"{section['start_time']} - {section['end_time']}",
+                section['building'], section['room'])
 
     if found_professor:
         return outp + "\n"
