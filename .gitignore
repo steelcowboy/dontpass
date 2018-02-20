@@ -3,7 +3,5 @@ __pycache__/*
 
 ghostdriver.log
 *.png
-settings.py
 venv
 dontpass/dontpass/secret.py
-!dontpass/dontpass/settings.py
