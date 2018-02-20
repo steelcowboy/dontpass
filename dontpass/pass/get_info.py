@@ -117,7 +117,10 @@ def parse_table(clsname, table):
             "waiting": int(cols[i+gridCols.WAITING].text),
             "status": cols[i+gridCols.STATUS].text,
             "days": cols[i+gridCols.DAYS].text,
-            "timespan": cols[i+gridCols.START].text + " - " + cols[i+gridCols.END].text
+            "start_time": cols[i+gridCols.START].text,
+            "end_time": cols[i+gridCols.END].text,
+            "building": cols[i+gridCols.BUILDING].text,
+            "room": cols[i+gridCols.ROOM].find_elements_by_tag_name("span").text,
             })
 
     # Add a 0.01 to fix division by 0 error, if the denominator is 0 the numerator is certainly 0 as well

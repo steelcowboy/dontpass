@@ -1,4 +1,4 @@
-import settings
+from . import settings
 
 from get_info import get_info 
 

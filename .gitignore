@@ -5,3 +5,4 @@ ghostdriver.log
 *.png
 settings.py
 venv
+dontpass/dontpass/secret.py
