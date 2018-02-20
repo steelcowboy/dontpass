@@ -1,7 +1,11 @@
 from django.db import models
+from datetime import datetime
 
 class Class(models.Model):
     name = models.CharField('Class Name', max_length=10)
+
+    def __str__(self):
+        return self.name
 
 class Section(models.Model):
     class_name = models.ForeignKey(Class, on_delete=models.CASCADE)
@@ -16,6 +20,9 @@ class Section(models.Model):
     building = models.CharField('Building', max_length=40)
     room = models.CharField('Room', max_length=6)
 
+    def __str__(self):
+        return f"{self.class_name} - {self.class_number}"
+
 class CapSnap(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE)
     time = models.DateTimeField('Capture Time', auto_now_add=True)
@@ -26,4 +33,7 @@ class CapSnap(models.Model):
     waiting = models.IntegerField('Waiting')
     closed = models.BooleanField('Closed')
 
+    def __str__(self):
+        ct = datetime.strftime(self.time, "%a, %b %d %H:%M") 
+        return f"{self.section.class_name} ({self.section.class_number}) - {ct}"
     

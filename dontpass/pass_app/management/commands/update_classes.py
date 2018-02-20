@@ -1,11 +1,16 @@
-# from settings import *
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
+from pass_app.models import Class, Section, CapSnap
 
-import settings
-
-from get_info import get_info 
-from models import Class, Section, CapSnap
+from .get_info import get_info 
+from . import settings
 from datetime import datetime, time
+
+class Command(BaseCommand):
+    help = 'Grab the classes from PASS and update the database'
+
+    def handle(self, *args, **options):
+        update_classes()
 
 def update_classes():
     classes = get_info(settings.classes)
@@ -22,7 +27,7 @@ def update_class(cls):
 
     class_name.save()
 
-    for section in sections:
+    for section in cls["sections"]:
         sect = None
         most_recent = None
 
@@ -51,12 +56,13 @@ def update_class(cls):
         sect.save()
 
         try:
-            most_recent = sect.capsnap_set.latest() 
+            # Get the most recent capture
+            most_recent = sect.capsnap_set.latest('time') 
             # Just return if there's no change, otherwise we'll take a snapshot
             if (
                     most_recent.open_seats == section['open_seats'] and
                     most_recent.reserved_seats == section['reserved_seats'] and
-                    most_recent.taken_seats == section['taken_seats'] and
+                    most_recent.taken_seats == section['taken'] and
                     most_recent.waiting == section['waiting'] and
                     most_recent.closed == section['closed']):
                 return
@@ -67,14 +73,9 @@ def update_class(cls):
                 section=sect,
                 open_seats=section['open_seats'],
                 reserved_seats=section['reserved_seats'],
-                taken_seats=section['taken_seats'],
+                taken_seats=section['taken'],
                 waiting=section['waiting'],
                 closed= (section['status'] == "Closed")
                 )
 
         snap.save()
-
-
-if __name__ == "__main__":
-    update_classes()
-
