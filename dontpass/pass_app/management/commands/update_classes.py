@@ -64,7 +64,7 @@ def update_class(cls):
                     most_recent.reserved_seats == section['reserved_seats'] and
                     most_recent.taken_seats == section['taken'] and
                     most_recent.waiting == section['waiting'] and
-                    most_recent.closed == section['closed']):
+                    most_recent.closed == (section['status'] == "Closed")):
                 return
         except ObjectDoesNotExist:
             pass

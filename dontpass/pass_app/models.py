@@ -4,6 +4,9 @@ from datetime import datetime
 class Class(models.Model):
     name = models.CharField('Class Name', max_length=10)
 
+    class Meta:
+        verbose_name_plural = "Classes"
+
     def __str__(self):
         return self.name
 
@@ -32,6 +35,9 @@ class CapSnap(models.Model):
     taken_seats = models.IntegerField('Taken Seats')
     waiting = models.IntegerField('Waiting')
     closed = models.BooleanField('Closed')
+
+    class Meta:
+        verbose_name = "Capacity Snapshot"
 
     def __str__(self):
         ct = datetime.strftime(self.time, "%a, %b %d %H:%M") 
