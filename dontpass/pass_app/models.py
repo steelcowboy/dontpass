@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Class(models.Model):
     name = models.CharField('Class Name', max_length=10)
@@ -40,6 +40,7 @@ class CapSnap(models.Model):
         verbose_name = "Capacity Snapshot"
 
     def __str__(self):
-        ct = datetime.strftime(self.time, "%a, %b %d %H:%M") 
+        tm = self.time.replace(tzinfo=timezone.utc).astimezone(tz=None)
+        ct = datetime.strftime(tm, "%a, %b %d %H:%M") 
         return f"{self.section.class_name} ({self.section.class_number}) - {ct}"
     
