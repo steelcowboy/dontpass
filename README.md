@@ -1,8 +1,8 @@
-# Don't Pass v0.2
+# Don't Pass v0.3
 Don't Pass is a Python tool you can run to scrape data from Cal Poly PASS
 and put that information into a database. It allows you to select classes to
-scrape and puts them in a database, and will include a web interface that allows
-you to sort through this information and see, eventually, statistics about the
+scrape and puts them in a database, and includes a web interface that allows
+you to sort through this information and see statistics about the
 changes in registration over time (if a daemon has been periodically running the
 database-update, that is!)
 
@@ -26,3 +26,9 @@ classs headers
 ## Updating the database
 More to be written, but currently run `manage.py update_database`. The structure
 of all this will be explained in due time
+
+# TO-DO
+- Add graphs to the web interface
+- Better styling
+- Cool tools
+- User accounts?

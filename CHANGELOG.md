@@ -1,3 +1,6 @@
+# 02-20-2018
+- Finally, a nice web interface
+
 # 02-19-2018
 - Integrated the original content into the "pass_app" Django app
 - Ability to update database with one simple command
