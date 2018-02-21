@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- jQuery and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>    
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  </head>
+
+  <body>
+    <nav class="navbar navbar-dark bg-primary">
+      <span class="navbar-brand mb-0 h1">
+        Don't PASS
+      </span>
+
+      <div class="navbar-nav">
+        <a class="nav-item nav-link" href="https://devjimheald.com">
+          Jim's Site
+        </a>
+      </div>
+
+      <span class="navbar-text">
+        Don't let your classes PASS you by!
+      </span>
+    </nav>
+
+    <div class="container">
+      {% for class in classes %}
+      <h3>{{ class.name }}</h3>
+
+      <table class="table table-striped">
+        <thead>
+          <th scope="col">Class Number</th>
+          <th scope="col">Section Number</th>
+          <th scope="col">Type</th>
+          <th scope="col">Instructor</th>
+          <th scope="col">Days</th>
+          <th scope="col">Start Time</th>
+          <th scope="col">End Time</th>
+          <th scope="col">Building</th>
+          <th scope="col">Room</th>
+        </thead>
+
+          <tbody>
+              {% for section in class.section_set.all %}
+                <tr data-toggle="collapse" data-target="#collapse-{{section.class_number}}" class="clickable table-primary">
+                  <td>{{ section.class_number }}</td>
+                  <td>{{ section.section_num }}</td>
+                  <td>{{ section.class_type }}</td>
+                  <td>{{ section.instructor }}</td>
+                  <td>{{ section.days }}</td>
+                  <td>{{ section.start_time }}</td>
+                  <td>{{ section.end_time }}</td>
+                  <td>{{ section.building }}</td>
+                  <td>{{ section.room }}</td>
+                </tr>
+
+                <tr>
+                  <td colspan="10">
+                    <div id="collapse-{{section.class_number}}" class="collapse">
+                      <table class="table table-sm">
+                        <thead>
+                          <th scope="col">Time</th>
+                          <th scope="col">Open Seats</th>
+                          <th scope="col">Reserved Seats</th>
+                          <th scope="col">Taken Seats</th>
+                          <th scope="col">Waiting</th>
+                          <th scope="col">Status</th>
+                        </thead>
+
+                        {% for snapshot in section.capsnap_set.all reversed %}
+                        <tbody>
+                          <td>{{ snapshot.time|date:"m/j H:i" }}</td>
+                          <td>{{ snapshot.open_seats }}</td>
+                          <td>{{ snapshot.reserved_seats }}</td>
+                          <td>{{ snapshot.taken_seats }}</td>
+                          <td>{{ snapshot.waiting }}</td>
+
+                          {% if snapshot.closed  %}
+                          <td><p class="text-danger">Closed</p></td>
+                          {% else %}
+                          <td><p class="text-success">Open</p></td>
+                          {% endif %}
+                        </tbody>
+                        {% endfor %}
+
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+      {% endfor %}
+    </div>
+
+  </body>
+
+</html>
