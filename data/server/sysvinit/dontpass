@@ -1,0 +1,18 @@
+#!/bin/sh
+
+. /etc/rc.subr
+
+name=dontpass
+rcvar=dontpass_enable
+
+pidfile="/var/run/${name}.pid"
+logdir="/var/log/gunicorn"
+logtime="$(date +%Y-%m-%d_%H-%M)"
+
+wd="/path/to/repo/dontpass/dontpass"
+command="/usr/local/bin/gunicorn-3.6"
+dontpass_flags="-p ${pidfile} --chdir ${wd} --daemon -w 4 -b 127.0.0.1:9000 --access-logfile ${logdir}/access-${logtime}.log --log-file ${logdir}/log-${logtime}.log"
+command_args="dontpass.wsgi"
+
+load_rc_config $name
+run_rc_command "$1"

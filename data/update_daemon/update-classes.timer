@@ -1,0 +1,9 @@
+[Unit]
+Description=Update PASS every 20 minutes
+
+[Timer]
+OnCalendar=2018-02-21..26 8..16:0/20
+Persistent=True
+
+[Install]
+WantedBy=timers.target

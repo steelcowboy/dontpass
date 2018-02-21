@@ -1,0 +1,8 @@
+[Unit]
+Description=Update the classes in my database from PASS
+
+[Service]
+ExecStart=/path/to/venv/python /path/to/repo/dontpass/dontpass/manage.py update_classes
+
+[Install]
+WantedBy=default.target
