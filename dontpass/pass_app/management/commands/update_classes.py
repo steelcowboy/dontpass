@@ -58,14 +58,15 @@ def update_class(cls):
         try:
             # Get the most recent capture
             most_recent = sect.capsnap_set.latest('time') 
-            # Just return if there's no change, otherwise we'll take a snapshot
+            # Just skip this section if there's no change,
+            # otherwise we'll take a snapshot
             if (
                     most_recent.open_seats == section['open_seats'] and
                     most_recent.reserved_seats == section['reserved_seats'] and
                     most_recent.taken_seats == section['taken'] and
                     most_recent.waiting == section['waiting'] and
                     most_recent.closed == (section['status'] == "Closed")):
-                return
+                continue
         except ObjectDoesNotExist:
             pass
 

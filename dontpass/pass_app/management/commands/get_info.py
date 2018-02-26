@@ -1,5 +1,7 @@
 import sys
 import time
+import os
+import pickle
 from enum import IntEnum
 
 from selenium import webdriver
@@ -24,36 +26,60 @@ class gridCols(IntEnum):
     ROOM = 13
 
 def get_info(clses):
-    driver = webdriver.PhantomJS()
+    cpickle = "/tmp/cookies.pickle"
+    classpickle = "/tmp/classes.pickle"
+    class_blocks = [] 
+    found_classes = []
+
+    driver = webdriver.Firefox()
     driver.get("https://pass.calpoly.edu")
 
-    found_classes = []
-    class_blocks = [] 
+    if os.path.exists(cpickle):
+        driver.delete_all_cookies()
+        with open(cpickle, "rb") as pf:
+            cookies_raw = pf.read()
 
-    depts = [x.split()[0] for x in clses]
+        cookies = pickle.loads(cookies_raw)
+        for cookie in cookies:
+            driver.add_cookie(cookie)
 
-    dept_selector = driver.find_element_by_xpath("//select[@data-filter='dept']") 
+        driver.refresh()
 
-    num_courses = 0
-    for option in dept_selector.find_elements_by_tag_name('option'):
-        dept, ln = option.text.split("-")[:2]
+        with open(classpickle, "rb") as cp:
+            found_classes = pickle.loads(cp.read())
 
-        if dept in depts:
-            option.click()
-            course_list = driver.find_element_by_class_name("course-list")
-            
-            result = click_courses(driver, [x.split()[1] for x in clses if dept in x], dept) 
+    else:
+        depts = [x.split()[0] for x in clses]
 
-            # Remove non-existent courses
-            if len(result):
-                found_classes += result
-                num_courses += 1 
+        dept_selector = driver.find_element_by_xpath("//select[@data-filter='dept']") 
 
-    # cart = driver.find_element_by_id("cart-list-view")
-    # assert num_courses == len(list(cart.find_elements_by_class_name("clearfix")))
+        driver.find_element_by_id("dismissNew").click()
 
-    # Go to next page
-    driver.find_element_by_id("nextBtn").click()
+        num_courses = 0
+        for option in dept_selector.find_elements_by_tag_name('option'):
+            dept, ln = option.text.split("-")[:2]
+
+            if dept in depts:
+                option.click()
+                
+                result = click_courses(driver, [x.split()[1] for x in clses if dept in x], dept) 
+
+                # Remove non-existent courses
+                if len(result):
+                    found_classes += result
+                    num_courses += 1 
+
+        # cart = driver.find_element_by_id("cart-list-view")
+        # assert num_courses == len(list(cart.find_elements_by_class_name("clearfix")))
+
+        # Go to next page
+        driver.find_element_by_id("nextBtn").click()
+
+        with open(classpickle, "wb") as cp:
+            cp.write(pickle.dumps(found_classes))
+
+        with open(cpickle, "wb") as pf:
+            pf.write(pickle.dumps(driver.get_cookies()))
 
     element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "select-course"))
@@ -66,6 +92,8 @@ def get_info(clses):
     for i, table in enumerate(classes):
         class_blocks.append(parse_table(found_classes[i], table))
     
+    driver.close()
+
     return class_blocks
 
 def click_courses(driver, courses, d):
