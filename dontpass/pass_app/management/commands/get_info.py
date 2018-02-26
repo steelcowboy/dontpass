@@ -30,11 +30,9 @@ def get_info(clses):
     class_blocks = [] 
     found_classes = []
     
-    # opts = Options()
-    # opts.set_headless()
-
-    # driver = webdriver.Firefox(options=opts)
-    driver = webdriver.Firefox()
+    opts = Options()
+    opts.set_headless()
+    driver = webdriver.Firefox(options=opts)
 
     driver.get("https://pass.calpoly.edu")
 
