@@ -31,7 +31,7 @@ def get_info(clses):
     class_blocks = [] 
     found_classes = []
 
-    driver = webdriver.PhantomJS()
+    driver = webdriver.Firefox()
     driver.get("https://pass.calpoly.edu")
 
     if os.path.exists(cpickle):
@@ -41,10 +41,6 @@ def get_info(clses):
 
         cookies = pickle.loads(cookies_raw)
         for cookie in cookies:
-            if cookie['domain'][0] != '.':
-                cookie['domain'] = "." + cookie['domain']
-
-            print(cookie)
             driver.add_cookie(cookie)
 
         driver.refresh()
@@ -54,7 +50,6 @@ def get_info(clses):
 
     else:
         depts = list({x.split()[0] for x in clses})
-        print(depts)
 
         dept_selector = driver.find_element_by_xpath("//select[@data-filter='dept']") 
 
@@ -101,7 +96,7 @@ def get_info(clses):
 
     driver.save_screenshot("class_grid.png")
     classes = driver.find_elements_by_class_name("select-course")
-    print(f'Found classes: {found_classes}')
+    # print(f'Found classes: {found_classes}')
 
     for i, table in enumerate(classes):
         class_blocks.append(parse_table(found_classes[i], table))
