@@ -68,7 +68,13 @@
 
           <tbody>
               {% for section in class.section_set.all %}
+
+                {% if section.capsnap_set.latest.closed %}
+                <tr data-toggle="collapse" data-target="#collapse-{{section.class_number}}" class="clickable table-danger">
+                {% else %}
                 <tr data-toggle="collapse" data-target="#collapse-{{section.class_number}}" class="clickable table-primary">
+                {% endif %}
+
                   <td>{{ section.class_number }}</td>
                   <td>{{ section.section_num }}</td>
                   <td>{{ section.class_type }}</td>

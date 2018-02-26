@@ -38,6 +38,7 @@ class CapSnap(models.Model):
 
     class Meta:
         verbose_name = "Capacity Snapshot"
+        get_latest_by = "time"
 
     def __str__(self):
         tm = self.time.replace(tzinfo=timezone.utc).astimezone(tz=None)

@@ -1,3 +1,7 @@
+# 02-25-2018
+- Dropdown for each class
+- Each section column shows red if it was closed in the most recent snapshot
+
 # 02-20-2018
 - Finally, a nice web interface
 
