@@ -2,6 +2,7 @@
 __pycache__/*
 
 ghostdriver.log
+geckodriver.log
 *.png
 venv
 dontpass/dontpass/secret.py
