@@ -20,14 +20,16 @@ def update_classes():
     for cls in classes:
         update_class(cls, quarter)
 
-def update_class(cls, quarter):
+def update_class(cls, qtr):
     class_name = None
     quarter = None
     
     try:
-        quarter = Quarter.objects.get(quarter_shortname=quarter)
+        quarter = Quarter.objects.get(quarter_shortname=qtr)
     except ObjectDoesNotExist:
-        quarter = Quarter(quarter_shortname=quarter)
+        quarter = Quarter(quarter_shortname=qtr)
+    
+    quarter.save()
 
     try:
         class_name = Class.objects.get(name=cls["title"])
