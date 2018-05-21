@@ -45,11 +45,12 @@ def update_class(cls, qtr):
         try:
             sect = Section.objects.get(class_number=section['class_number'])
         except ObjectDoesNotExist:
-            st = datetime.strptime(section['start_time'], "%I:%M %p")
-            en = datetime.strptime(section['end_time'], "%I:%M %p")
+            """ TODO: More gracefully handle TBA or TBD """
+            # st = datetime.strptime(section['start_time'], "%I:%M %p")
+            # en = datetime.strptime(section['end_time'], "%I:%M %p")
 
-            start = time(st.hour, st.minute)
-            end = time(en.hour, en.minute)
+            # start = time(st.hour, st.minute)
+            # end = time(en.hour, en.minute)
 
             sect = Section(
                     class_number=section['class_number'], 
@@ -59,8 +60,8 @@ def update_class(cls, qtr):
                     class_type=section['type'],
                     instructor=section['instructor'],
                     days=section['days'],
-                    start_time=start,
-                    end_time=end,
+                    start_time=section['start_time'],
+                    end_time=section['end_time'],
                     building=section['building'],
                     room=section['room']
                     )
