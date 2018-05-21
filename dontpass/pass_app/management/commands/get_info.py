@@ -4,6 +4,7 @@ import os
 import re
 import datetime
 from enum import IntEnum
+from os.path import expanduser
 from bs4 import BeautifulSoup, SoupStrainer 
 
 from selenium import webdriver
@@ -79,14 +80,15 @@ def get_info():
     now = datetime.datetime.now()
     timestamp = f"{now.year}{now.month}{now.day}-{now.hour}{now.minute}"
     html = driver.page_source
-    with open(f"pass-{timestamp}.html", "w") as passfile:
+    with open(expanduser(f"~/pass_html/pass-{timestamp}.html"), "w") as passfile:
         passfile.write(html)
 
     driver.close()
 
     class_blocks = parse_pass(html)
 
-    return {"quarter": q_title, "classes": class_blocks}
+    result = {"quarter": q_title, "classes": class_blocks}
+    return result 
 
 def click_courses(driver, d):
     element = WebDriverWait(driver, 10).until(
@@ -108,7 +110,7 @@ def click_courses(driver, d):
 def parse_pass(html):
     strainer = SoupStrainer("div", class_="select-course")
     classes = []
-
+    
     soup = BeautifulSoup(html, 'html.parser', parse_only=strainer)
     for class_block in soup.children:
         sections = []
@@ -154,6 +156,6 @@ def parse_pass(html):
         # Add a 0.01 to fix division by 0 error, if the denominator is 0 the numerator is certainly 0 as well
         sections = sorted(sections, key=lambda k: (k["taken"]+k["waiting"])/(k["open_seats"]+k["reserved_seats"]+k["waiting"]+k["taken"]+0.01))
         result = {"title": clsname, "sections": sections}
-        classes += result
+        classes.append(result)
 
     return classes
