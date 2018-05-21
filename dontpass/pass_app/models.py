@@ -25,6 +25,9 @@ class Quarter(models.Model):
     pnc_first = models.DateField("PolyPlanner Non-Compliant 1st Round", blank=True, null=True)
     pnc_second = models.DateField("PolyPlanner Non-Compliant 2nd Round", blank=True, null=True)
 
+    def __str__(self):
+        return quarter_shortname
+
 class Class(models.Model):
     name = models.CharField('Class Name', max_length=10)
 
