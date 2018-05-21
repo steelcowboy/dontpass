@@ -36,11 +36,17 @@ def get_class_or_empty_list(obj):
     return val if val else []
 
 
-def get_info():
+def get_info(input_html=None):
     ## AS OF 5/18/18
     SUMMER = 2186
     FALL = 2188
     ##
+
+    if input_html is not None:
+        class_blocks = parse_pass(input_html)
+
+        result = {"quarter": "F18", "classes": class_blocks}
+        return result 
 
     class_blocks = [] 
 
@@ -78,7 +84,7 @@ def get_info():
     )
     
     now = datetime.datetime.now()
-    timestamp = f"{now.year}{now.month}{now.day}-{now.hour}{now.minute}"
+    timestamp = now.strftime("%Y%m%d-%H%M") 
     html = driver.page_source
     with open(expanduser(f"~/pass_html/pass-{timestamp}.html"), "w") as passfile:
         passfile.write(html)
