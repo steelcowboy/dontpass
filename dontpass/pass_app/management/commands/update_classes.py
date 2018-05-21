@@ -5,22 +5,56 @@ from pass_app.models import Quarter, Class, Section, CapSnap
 from .get_info import get_info 
 from . import settings
 from datetime import datetime, time
+from os.path import basename
+
+def time_or_default(time_str):
+    default_time = time(0, 0)
+    result = None
+
+    try:
+        dt_result = datetime.strptime(time_str, "%I:%M %p")
+        result = time(dt_result.hour, dt_result.minute)
+    except ValueError:
+        result = default_time
+
+    return result
 
 class Command(BaseCommand):
     help = 'Grab the classes from PASS and update the database'
+    
+    def add_arguments(self, parser):
+        parser.add_argument(
+                '--html',
+                action='store',
+                dest='html',
+                help='Specify an HTML file to parse instead of pulling from PASS'
+                )
+
 
     def handle(self, *args, **options):
-        update_classes()
+        if options['html']:
+            update_classes(options['html'])
+        else:
+            update_classes()
 
-def update_classes():
-    info = get_info()
+def update_classes(html_file = None):
+    info = None
+    explicit_time = None
+
+    if html_file is not None:
+        explicit_time = datetime.strptime(basename(html_file), "pass-%Y%m%d-%H%M.html")  
+        with open(html_file, "r") as ihtml:
+            info = get_info(ihtml)
+    else:
+        info = get_info()
+
     quarter = info["quarter"]
     classes = info["classes"]
 
     for cls in classes:
-        update_class(cls, quarter)
+        update_class(cls, quarter, explicit_time)
 
-def update_class(cls, qtr):
+def update_class(cls, qtr, explicit_time=None):
     class_name = None
     quarter = None
     
@@ -45,13 +79,6 @@ def update_class(cls, qtr):
         try:
             sect = Section.objects.get(class_number=section['class_number'])
         except ObjectDoesNotExist:
-            """ TODO: More gracefully handle TBA or TBD """
-            # st = datetime.strptime(section['start_time'], "%I:%M %p")
-            # en = datetime.strptime(section['end_time'], "%I:%M %p")
-
-            # start = time(st.hour, st.minute)
-            # end = time(en.hour, en.minute)
-
             sect = Section(
                     class_number=section['class_number'], 
                     quarter=quarter,
@@ -60,8 +87,8 @@ def update_class(cls, qtr):
                     class_type=section['type'],
                     instructor=section['instructor'],
                     days=section['days'],
-                    start_time=section['start_time'],
-                    end_time=section['end_time'],
+                    start_time=time_or_default(section['start_time']),
+                    end_time=time_or_default(section['end_time']),
                     building=section['building'],
                     room=section['room']
                     )
@@ -83,13 +110,27 @@ def update_class(cls, qtr):
         except ObjectDoesNotExist:
             pass
 
-        snap = CapSnap(
-                section=sect,
-                open_seats=section['open_seats'],
-                reserved_seats=section['reserved_seats'],
-                taken_seats=section['taken'],
-                waiting=section['waiting'],
-                closed= (section['status'] == "Closed")
-                )
+        snap = None
+
+        if explicit_time is None:
+            snap = CapSnap(
+                    section=sect,
+                    open_seats=section['open_seats'],
+                    reserved_seats=section['reserved_seats'],
+                    taken_seats=section['taken'],
+                    waiting=section['waiting'],
+                    closed= (section['status'] == "Closed")
+                    )
+        else:
+            snap = CapSnap(
+                    section=sect,
+                    time = explicit_time,
+                    open_seats=section['open_seats'],
+                    reserved_seats=section['reserved_seats'],
+                    taken_seats=section['taken'],
+                    waiting=section['waiting'],
+                    closed= (section['status'] == "Closed")
+                    )
+
 
         snap.save()
