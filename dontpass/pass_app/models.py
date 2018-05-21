@@ -49,7 +49,7 @@ class Section(models.Model):
     start_time = models.TimeField('Start Time')
     end_time = models.TimeField('End Time')
     building = models.CharField('Building', max_length=40)
-    room = models.CharField('Room', max_length=6)
+    room = models.CharField('Room', max_length=10)
 
     def __str__(self):
         return f"{self.class_name} - {self.class_number}"
