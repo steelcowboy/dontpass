@@ -6,7 +6,11 @@ from get_info import get_info
 def main():
     full_outp = ""
 
-    classes = get_info(settings.classes)
+    classes = get_info()
+    quarter = classes["quarter"]
+    classes = classes["classes"]
+
+    full_outp += f"\033[31m{quarter}\033[0m\n\n"
     for cls in classes:
         full_outp += print_class(cls)
 

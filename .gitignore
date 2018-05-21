@@ -6,3 +6,4 @@ geckodriver.log
 *.png
 venv
 dontpass/dontpass/secret.py
+dontpass/pass_app/management/commands/*.html

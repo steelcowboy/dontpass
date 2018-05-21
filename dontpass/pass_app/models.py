@@ -1,6 +1,30 @@
 from django.db import models
 from datetime import datetime, timezone
 
+class Quarter(models.Model):
+    quarter_shortname = models.CharField("Quarter Shortname", max_length=3)
+
+    se_first = models.DateField("Special Exception 1st Round", blank=True, null=True)
+    se_second = models.DateField("Special Exception 2nd Round", blank=True, null=True)
+
+    cgs_first = models.DateField("Continuing Graduate Students 1st Round", blank=True, null=True)
+    cgs_second = models.DateField("Continuing Graduate Students 2nd Round", blank=True, null=True)
+
+    apl4_first = models.DateField("Academic Progress Level IV 1st Round", blank=True, null=True)
+    apl4_second = models.DateField("Academic Progress Level IV 2nd Round", blank=True, null=True)
+
+    apl3_first = models.DateField("Academic Progress Level III 1st Round", blank=True, null=True)
+    apl3_second = models.DateField("Academic Progress Level III 2nd Round", blank=True, null=True)
+
+    apl2_first = models.DateField("Academic Progress Level II 1st Round", blank=True, null=True)
+    apl2_second = models.DateField("Academic Progress Level II 2nd Round", blank=True, null=True)
+
+    apl1_first = models.DateField("Academic Progress Level I 1st Round", blank=True, null=True)
+    apl1_second = models.DateField("Academic Progress Level I 2nd Round", blank=True, null=True)
+
+    pnc_first = models.DateField("PolyPlanner Non-Compliant 1st Round", blank=True, null=True)
+    pnc_second = models.DateField("PolyPlanner Non-Compliant 2nd Round", blank=True, null=True)
+
 class Class(models.Model):
     name = models.CharField('Class Name', max_length=10)
 
@@ -12,6 +36,7 @@ class Class(models.Model):
 
 class Section(models.Model):
     class_name = models.ForeignKey(Class, on_delete=models.CASCADE)
+    quarter = models.ForeignKey(Quarter, on_delete=models.CASCADE, default=1, null=True)
 
     class_number = models.IntegerField('Class Number', primary_key=True, editable=False)
     section_num = models.IntegerField('Section Number')

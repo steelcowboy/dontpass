@@ -13,11 +13,14 @@ class Command(BaseCommand):
         update_classes()
 
 def update_classes():
-    classes = get_info(settings.classes)
-    for cls in classes:
-        update_class(cls)
+    info = get_info()
+    quarter = info["quarter"]
+    classes = info["classes"]
 
-def update_class(cls):
+    for cls in classes:
+        update_class(cls, quarter)
+
+def update_class(cls, quarter):
     class_name = None
 
     try:

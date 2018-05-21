@@ -77,8 +77,10 @@ def get_info():
         EC.presence_of_element_located((By.CLASS_NAME, "select-course"))
     )
     
+    now = datetime.datetime.now()
+    timestamp = f"{now.year}{now.month}{now.day}-{now.hour}{now.minute}"
     html = driver.page_source
-    with open(f"pass-{}.html", "w") as passfile:
+    with open(f"pass-{timestamp}.html", "w") as passfile:
         passfile.write(html)
 
     driver.close()
@@ -105,6 +107,8 @@ def click_courses(driver, d):
     time.sleep(1)
 
 def parse_pass(html):
+    num_sections = 0
+
     strainer = SoupStrainer("div", class_="select-course")
 
     soup = BeautifulSoup(html, 'html.parser', parse_only=strainer)
@@ -153,3 +157,6 @@ def parse_pass(html):
         sections = sorted(sections, key=lambda k: (k["taken"]+k["waiting"])/(k["open_seats"]+k["reserved_seats"]+k["waiting"]+k["taken"]+0.01))
         result = {"title": clsname, "sections": sections}
 
+        num_sections += 1
+
+    print(num_sections)
