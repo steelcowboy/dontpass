@@ -1,14 +1,18 @@
 import sys
 import time
 import os
+import re
+import datetime
 from enum import IntEnum
+from bs4 import BeautifulSoup, SoupStrainer 
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from selenium.webdriver.firefox.options import Options
+# from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class gridCols(IntEnum):
     SECTION = 0
@@ -26,38 +30,45 @@ class gridCols(IntEnum):
     BUILDING = 12
     ROOM = 13
 
-def get_info(clses):
+def get_class_or_empty_list(obj):
+    val = obj.get("class")
+    return val if val else []
+
+
+def get_info():
+    ## AS OF 5/18/18
+    SUMMER = 2186
+    FALL = 2188
+    ##
+
     class_blocks = [] 
-    found_classes = []
-    
-    opts = Options()
-    opts.set_headless()
-    driver = webdriver.Firefox(options=opts)
+    time.sleep(1)
+
+    capab = DesiredCapabilities.CHROME
+    # capab['chromeOptions'] = {'args': ['--headless']}
+
+    driver = webdriver.Remote(command_executor="http://localhost:9515", desired_capabilities=capab)
 
     driver.get("https://pass.calpoly.edu")
 
-    depts = [x.split()[0] for x in clses]
+    driver.execute_script(f"window.location.href='/?selectedTerm={FALL}'")
+
+    element = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "dismissNew"))
+    )
+    element.click()
+
+    q_title = driver.find_element_by_class_name("pageTitleQuarter").text
+    q_title = q_title[0] + q_title[len(q_title)-2:]
 
     dept_selector = driver.find_element_by_xpath("//select[@data-filter='dept']") 
-
-    driver.find_element_by_id("dismissNew").click()
 
     num_courses = 0
     for option in dept_selector.find_elements_by_tag_name('option'):
         dept, ln = option.text.split("-")[:2]
+        option.click()
+        click_courses(driver, dept) 
 
-        if dept in depts:
-            option.click()
-            
-            result = click_courses(driver, [x.split()[1] for x in clses if dept in x], dept) 
-
-            # Remove non-existent courses
-            if len(result):
-                found_classes += result
-                num_courses += 1 
-
-    # cart = driver.find_element_by_id("cart-list-view")
-    # assert num_courses == len(list(cart.find_elements_by_class_name("clearfix")))
 
     # Go to next page
     driver.find_element_by_id("nextBtn").click()
@@ -66,74 +77,79 @@ def get_info(clses):
         EC.presence_of_element_located((By.CLASS_NAME, "select-course"))
     )
     
-    driver.save_screenshot("class_grid.png")
+    html = driver.page_source
+    with open(f"pass-{}.html", "w") as passfile:
+        passfile.write(html)
 
-    classes = driver.find_elements_by_class_name("select-course")
-
-    for i, table in enumerate(classes):
-        class_blocks.append(parse_table(found_classes[i], table))
-    
     driver.close()
 
-    return class_blocks
+    class_blocks = parse_pass(html)
 
-def click_courses(driver, courses, d):
+    return {"quarter": q_title, "classes": class_blocks}
+
+def click_courses(driver, d):
     element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CLASS_NAME, "selectCol"))
     )
     # This is to wait for the table to fully load (the wait driver doesn't
     # always work if it was clicked before
     time.sleep(1)
-    # driver.save_screenshot(f"{d}-buttons.png")
 
-    found_courses = [] 
     course_list = driver.find_element_by_class_name("course-list")
+
     
-    for row in course_list.find_elements_by_tag_name("tr"):
-        try:
-            cols = list(row.find_elements_by_tag_name("td"))
-            if len(cols) > 5 and cols[2].text in courses:
-                cols[0].find_element_by_class_name("btn").click()
-                found_courses.append(f"{d} {cols[2].text}")
-        except:
-            driver.save_screenshot("screenshot.png")
-            driver.close()
-            sys.exit(1)
-    
-    return found_courses 
+    for btn in course_list.find_elements_by_class_name("btn"):
+        WebDriverWait(driver, 10).until(EC.visibility_of(btn))
+        btn.click()
 
-def parse_table(clsname, table):
-    sections = []
+    time.sleep(1)
 
-    for row in table.find_elements_by_tag_name("tr"):
-        # First need to see if this is a notes row or a data row
-        try:
-            start_elem = row.find_element_by_class_name("sectionNumber")
-        except:
-            continue
+def parse_pass(html):
+    strainer = SoupStrainer("div", class_="select-course")
 
-        cols = list(row.find_elements_by_tag_name("td"))
-        i = cols.index(start_elem)
+    soup = BeautifulSoup(html, 'html.parser', parse_only=strainer)
+    for class_block in soup.children:
+        sections = []
 
-        sections.append({
-            "section": int(cols[i].text),
-            "type": cols[i+gridCols.TYPE].text,
-            "class_number": int(cols[i+gridCols.CLSNUM].text),
-            "instructor": cols[i+gridCols.INST].text,
-            "open_seats": int(cols[i+gridCols.OPEN_S].text),
-            "reserved_seats": int(cols[i+gridCols.RES_S].text),
-            "taken": int(cols[i+gridCols.SEAT_T].text),
-            "waiting": int(cols[i+gridCols.WAITING].text),
-            "status": cols[i+gridCols.STATUS].text,
-            "days": cols[i+gridCols.DAYS].text,
-            "start_time": cols[i+gridCols.START].text,
-            "end_time": cols[i+gridCols.END].text,
-            "building": cols[i+gridCols.BUILDING].text,
-            "room": cols[i+gridCols.ROOM].find_elements_by_tag_name("span")[0].text,
-            })
+        class_name = class_block.h3.text
+        name = class_name.split("-")[0]
+        name = name.rstrip().lstrip()
+        clsname = re.sub(' +',' ', name)
 
-    # Add a 0.01 to fix division by 0 error, if the denominator is 0 the numerator is certainly 0 as well
-    sections = sorted(sections, key=lambda k: (k["taken"]+k["waiting"])/(k["open_seats"]+k["reserved_seats"]+k["waiting"]+k["taken"]+0.01))
-    result = {"title": clsname, "sections": sections}
-    return result
+        for row in class_block("tr"):
+            if "key-cancel" in get_class_or_empty_list(row): 
+                continue
+
+            # First need to see if this is a notes row or a data row
+            start_elem = row.find("td", class_="sectionNumber")
+            if start_elem == None:
+                continue
+
+            cols = list(row("td"))
+            i = cols.index(start_elem)
+
+            # For some reason a section has a * in it, remove anything that's not a number
+            section_num = int(re.sub("[^0-9]", "", cols[i].text))
+            status = cols[i+gridCols.STATUS].text.lstrip().rstrip()
+            
+            sections.append({
+                "section": section_num, 
+                "type": cols[i+gridCols.TYPE].text,
+                "class_number": int(cols[i+gridCols.CLSNUM].text),
+                "instructor": cols[i+gridCols.INST].text,
+                "open_seats": int(cols[i+gridCols.OPEN_S].text),
+                "reserved_seats": int(cols[i+gridCols.RES_S].text),
+                "taken": int(cols[i+gridCols.SEAT_T].text),
+                "waiting": int(cols[i+gridCols.WAITING].text),
+                "status": status,
+                "days": cols[i+gridCols.DAYS].text,
+                "start_time": cols[i+gridCols.START].text,
+                "end_time": cols[i+gridCols.END].text,
+                "building": cols[i+gridCols.BUILDING].text,
+                "room": cols[i+gridCols.ROOM].span.text,
+                })
+
+        # Add a 0.01 to fix division by 0 error, if the denominator is 0 the numerator is certainly 0 as well
+        sections = sorted(sections, key=lambda k: (k["taken"]+k["waiting"])/(k["open_seats"]+k["reserved_seats"]+k["waiting"]+k["taken"]+0.01))
+        result = {"title": clsname, "sections": sections}
 
