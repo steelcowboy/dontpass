@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
-from pass_app.models import Class, Section, CapSnap
+from pass_app.models import Quarter, Class, Section, CapSnap
 
 from .get_info import get_info 
 from . import settings
@@ -22,6 +22,12 @@ def update_classes():
 
 def update_class(cls, quarter):
     class_name = None
+    quarter = None
+    
+    try:
+        quarter = Quarter.objects.get(quarter_shortname=quarter)
+    except ObjectDoesNotExist:
+        quarter = Quarter(quarter_shortname=quarter)
 
     try:
         class_name = Class.objects.get(name=cls["title"])
@@ -45,6 +51,7 @@ def update_class(cls, quarter):
 
             sect = Section(
                     class_number=section['class_number'], 
+                    quarter=quarter,
                     class_name=class_name,
                     section_num=section['section'], 
                     class_type=section['type'],

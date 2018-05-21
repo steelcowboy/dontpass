@@ -42,10 +42,9 @@ def get_info():
     ##
 
     class_blocks = [] 
-    time.sleep(1)
 
     capab = DesiredCapabilities.CHROME
-    # capab['chromeOptions'] = {'args': ['--headless']}
+    capab['chromeOptions'] = {'args': ['--headless']}
 
     driver = webdriver.Remote(command_executor="http://localhost:9515", desired_capabilities=capab)
 
@@ -107,9 +106,8 @@ def click_courses(driver, d):
     time.sleep(1)
 
 def parse_pass(html):
-    num_sections = 0
-
     strainer = SoupStrainer("div", class_="select-course")
+    classes = []
 
     soup = BeautifulSoup(html, 'html.parser', parse_only=strainer)
     for class_block in soup.children:
@@ -156,7 +154,6 @@ def parse_pass(html):
         # Add a 0.01 to fix division by 0 error, if the denominator is 0 the numerator is certainly 0 as well
         sections = sorted(sections, key=lambda k: (k["taken"]+k["waiting"])/(k["open_seats"]+k["reserved_seats"]+k["waiting"]+k["taken"]+0.01))
         result = {"title": clsname, "sections": sections}
+        classes += result
 
-        num_sections += 1
-
-    print(num_sections)
+    return classes
