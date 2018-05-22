@@ -110,27 +110,16 @@ def update_class(cls, qtr, explicit_time=None):
         except ObjectDoesNotExist:
             pass
 
-        snap = None
+        snap = CapSnap(
+                section=sect,
+                open_seats=section['open_seats'],
+                reserved_seats=section['reserved_seats'],
+                taken_seats=section['taken'],
+                waiting=section['waiting'],
+                closed= (section['status'] == "Closed")
+                )
 
         if explicit_time is None:
-            snap = CapSnap(
-                    section=sect,
-                    open_seats=section['open_seats'],
-                    reserved_seats=section['reserved_seats'],
-                    taken_seats=section['taken'],
-                    waiting=section['waiting'],
-                    closed= (section['status'] == "Closed")
-                    )
-        else:
-            snap = CapSnap(
-                    section=sect,
-                    time = explicit_time,
-                    open_seats=section['open_seats'],
-                    reserved_seats=section['reserved_seats'],
-                    taken_seats=section['taken'],
-                    waiting=section['waiting'],
-                    closed= (section['status'] == "Closed")
-                    )
-
+            snap.time = explicit_time
 
         snap.save()
