@@ -46,6 +46,7 @@ def update_classes(html_file = None):
         with open(html_file, "r") as ihtml:
             info = get_info(ihtml)
     else:
+        explicit_time = datetime.now()
         info = get_info()
 
     quarter = info["quarter"]
