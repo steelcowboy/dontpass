@@ -26,7 +26,7 @@ class Quarter(models.Model):
     pnc_second = models.DateField("PolyPlanner Non-Compliant 2nd Round", blank=True, null=True)
 
     def __str__(self):
-        return quarter_shortname
+        return self.quarter_shortname
 
 class Class(models.Model):
     name = models.CharField('Class Name', max_length=10)
@@ -41,7 +41,7 @@ class Section(models.Model):
     class_name = models.ForeignKey(Class, on_delete=models.CASCADE)
     quarter = models.ForeignKey(Quarter, on_delete=models.CASCADE, default=1, null=True)
 
-    class_number = models.IntegerField('Class Number', primary_key=True, editable=False)
+    class_number = models.IntegerField('Class Number', editable=False)
     section_num = models.IntegerField('Section Number')
     class_type = models.CharField('Type', max_length=4)
     instructor = models.CharField('Instructor', max_length=40)
