@@ -55,7 +55,7 @@ def update_classes(html_file = None):
     for cls in classes:
         update_class(cls, quarter, explicit_time)
 
-def update_class(cls, qtr, explicit_time=None):
+def update_class(cls, qtr, explicit_time):
     class_name = None
     quarter = None
     
@@ -113,14 +113,12 @@ def update_class(cls, qtr, explicit_time=None):
 
         snap = CapSnap(
                 section=sect,
+                time=explicit_time,
                 open_seats=section['open_seats'],
                 reserved_seats=section['reserved_seats'],
                 taken_seats=section['taken'],
                 waiting=section['waiting'],
                 closed= (section['status'] == "Closed")
                 )
-
-        if explicit_time is None:
-            snap.time = explicit_time
 
         snap.save()

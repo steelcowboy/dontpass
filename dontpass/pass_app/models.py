@@ -66,6 +66,7 @@ class CapSnap(models.Model):
 
     class Meta:
         verbose_name = "Capacity Snapshot"
+        ordering = ['time']
         get_latest_by = "time"
 
     def __str__(self):

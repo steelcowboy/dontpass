@@ -3,10 +3,17 @@ import settings
 
 from get_info import get_info 
 
+max_room_len = 0
+
 def main():
     full_outp = ""
 
-    classes = get_info()
+    # classes = get_info()
+    classes = None
+
+    with open("/home/steelcowboy/pass_html/pass-2018521-1545.html", "r") as ihtml:
+        classes = get_info(ihtml)
+
     quarter = classes["quarter"]
     classes = classes["classes"]
 
@@ -14,9 +21,11 @@ def main():
     for cls in classes:
         full_outp += print_class(cls)
 
+    print(max_room_len)
     return full_outp
 
 def print_class(cls):
+    global max_room_len
     found_professor = False
     
     show_inst = settings.show_all_inst
@@ -38,6 +47,8 @@ def print_class(cls):
 
     sections = cls["sections"]
     for section in sections:
+        max_room_len = max(max_room_len, len(section['room']))
+
         inst_last = section['instructor'].split(",")[0]
 
         # Handle compound last names 
@@ -63,5 +74,5 @@ def print_class(cls):
         return ""
 
 if __name__ == "__main__":
-    print(main())
+    main()
 
