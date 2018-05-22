@@ -56,7 +56,7 @@ class Section(models.Model):
 
 class CapSnap(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE)
-    time = models.DateTimeField('Capture Time', auto_now_add=True)
+    time = models.DateTimeField('Capture Time')
 
     open_seats = models.IntegerField('Open Seats') 
     reserved_seats = models.IntegerField('Reserved Seats')
