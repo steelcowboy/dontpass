@@ -22,6 +22,14 @@ def tanner(request):
     context = {"classes": list(chain(psy329, psy305, hist354, csc484))}
     return render(request, 'pass_app/main.html', context)
 
+def eric(request):
+    psy329 = Class.objects.filter(name="ART 182")
+    psy305 = Class.objects.filter(name="CPE 357")
+    hist354 = Class.objects.filter(name="PHYS 132")
+
+    context = {"classes": list(chain(psy329, psy305, hist354))}
+    return render(request, 'pass_app/main.html', context)
+
 def class_lookup(request, cls):
     cls_name = []
     found_digit = False
