@@ -13,6 +13,15 @@ def index(request):
     context = {"classes": list(chain(psy329, psy305, hist354, csc484))}
     return render(request, 'pass_app/main.html', context)
 
+def tanner(request):
+    psy329 = Class.objects.filter(name="CSC 480")
+    psy305 = Class.objects.filter(name="CSC 402")
+    hist354 = Class.objects.filter(name="CSC 305")
+    csc484 = Class.objects.filter(name="PSY 350")
+
+    context = {"classes": list(chain(psy329, psy305, hist354, csc484))}
+    return render(request, 'pass_app/main.html', context)
+
 def class_lookup(request, cls):
     cls_name = []
     found_digit = False
