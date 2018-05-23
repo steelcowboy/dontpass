@@ -1,5 +1,6 @@
 from itertools import chain
 from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
 from .models import Class
 
 # Create your views here.
@@ -28,3 +29,9 @@ def class_lookup(request, cls):
 
     context = {"classes": [class_object]}
     return render(request, 'pass_app/main.html', context)
+
+def list_classes(request):
+    classes = Class.objects.all()
+    class_list = sorted([cls.name for cls in classes])
+    return JsonResponse({"classes": class_list})
+
