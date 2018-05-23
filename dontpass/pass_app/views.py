@@ -30,6 +30,17 @@ def eric(request):
     context = {"classes": list(chain(psy329, psy305, hist354))}
     return render(request, 'pass_app/main.html', context)
 
+def amanda(request):
+    bus319 = Class.objects.filter(name="BUS 319")
+    bus391 = Class.objects.filter(name="BUS 391")
+    itp330 = Class.objects.filter(name="ITP 330")
+    bus342 = Class.objects.filter(name="BUS 342")
+    bus387 = Class.objects.filter(name="BUS 387")
+    bus346 = Class.objects.filter(name="BUS 346")
+
+    context = {"classes": list(chain(bus319, bus342, bus346, bus387, bus391, itp330))}
+    return render(request, 'pass_app/main.html', context)
+
 def class_lookup(request, cls):
     cls_name = []
     found_digit = False
