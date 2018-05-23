@@ -48,7 +48,7 @@ def sawyer(request):
     ime319 = Class.objects.filter(name="IME 319")
     isla303 = Class.objects.filter(name="ISLA 303")
 
-    context = {"classes": list(chain(psy350, ime223, ime301, ime319, isla303)}
+    context = {"classes": list(chain(psy350, ime223, ime301, ime319, isla303))}
     return render(request, 'pass_app/main.html', context)
 
 def class_lookup(request, cls):
