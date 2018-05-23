@@ -41,6 +41,16 @@ def amanda(request):
     context = {"classes": list(chain(bus319, bus342, bus346, bus387, bus391, itp330))}
     return render(request, 'pass_app/main.html', context)
 
+def sawyer(request):
+    psy350 = Class.objects.filter(name="PSY 350")
+    ime223 = Class.objects.filter(name="IME 223")
+    ime301 = Class.objects.filter(name="IME 301")
+    ime319 = Class.objects.filter(name="IME 319")
+    isla303 = Class.objects.filter(name="ISLA 303")
+
+    context = {"classes": list(chain(psy350, ime223, ime301, ime319, isla303)}
+    return render(request, 'pass_app/main.html', context)
+
 def class_lookup(request, cls):
     cls_name = []
     found_digit = False
